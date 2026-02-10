@@ -1,6 +1,7 @@
 import os
-import zipfile
 import random
+import zipfile
+
 from PIL import Image
 from tqdm import tqdm
 

@@ -1,7 +1,5 @@
 import mlflow
 import mlflow.pytorch
-import torch
-from model import SimpleCNN
 
 MODEL_NAME = "cnn-mnist"
 STAGE = "Production"

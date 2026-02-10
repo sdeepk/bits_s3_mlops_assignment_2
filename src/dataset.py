@@ -1,5 +1,6 @@
 from torchvision import datasets, transforms
 
+
 def get_datasets(data_dir):
     train_tf = transforms.Compose([
         transforms.RandomHorizontalFlip(),

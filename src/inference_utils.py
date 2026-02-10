@@ -1,6 +1,5 @@
-import torch
-from torchvision import transforms
 from PIL import Image
+from torchvision import transforms
 
 # Same normalization as training
 preprocess = transforms.Compose([

@@ -1,6 +1,8 @@
-from PIL import Image
 import numpy as np
+from PIL import Image
+
 from src.inference_utils import prepare_image
+
 
 def test_prepare_image_shape():
     # Create dummy RGB image
