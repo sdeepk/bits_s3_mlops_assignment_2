@@ -1,16 +1,22 @@
 # ---- Imports ----
-import time
+import io
 import logging
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+import time
 from contextlib import asynccontextmanager
-import torch
+
 import mlflow.pytorch
+import torch
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from PIL import Image
+
 from src.inference_utils import prepare_image
 from src.schemas import PredictResponse
 
 # ---- Logging ----
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("cats-dogs-api")
+
+CLASS_NAMES = ["Cat", "Dog"]
 
 # ---- Metrics Globals ----
 request_count = 0
