@@ -4,6 +4,7 @@ import torch
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from PIL import Image
 import io
+from contextlib import asynccontextmanager
 
 from src.schemas import PredictResponse
 from src.inference_utils import prepare_image
@@ -13,15 +14,19 @@ MODEL_NAME = "cats-dogs-resnet18"
 STAGE = "Production"
 CLASS_NAMES = ["Cat", "Dog"]
 
-app = FastAPI(title="Cats vs Dogs Inference Service")
 
-# Load Champion model once at startup
-@app.on_event("startup")
-def load_model():
-    global model
+@asynccontextmanager
+async def lifespan(app):
     model = mlflow.pytorch.load_model("models/champion")
     model.eval()
+    app.state.model = model
     print("Champion model loaded")
+    yield
+
+app = FastAPI(
+    title="Cats vs Dogs Inference Service",
+    lifespan=lifespan
+)
 
 @app.get("/health")
 def health():
@@ -38,7 +43,7 @@ async def predict(file: UploadFile = File(...)):
     x = prepare_image(image)
 
     with torch.no_grad():
-        logits = model(x)
+        logits = app.state.model(x)
         probs = torch.softmax(logits, dim=1).squeeze()
         pred_idx = int(torch.argmax(probs))
         confidence = float(probs[pred_idx])

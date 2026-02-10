@@ -1,0 +1,20 @@
+/raw
+/processed
+
+# MLflow
+mlruns/
+mlflow.db
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Virtual env
+.venv/
+
+# Pytest
+.pytest_cache/
