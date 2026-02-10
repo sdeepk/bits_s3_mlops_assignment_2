@@ -1,8 +1,11 @@
-from fastapi.testclient import TestClient
-from src.inference import app
-from PIL import Image
 import io
+
 import numpy as np
+from fastapi.testclient import TestClient
+from PIL import Image
+
+from src.inference import app
+
 
 def get_test_client():
     return TestClient(app)
@@ -14,9 +17,6 @@ def test_health_endpoint():
         assert response.json()["status"] == "ok"
 
 def test_predict_endpoint_accepts_image():
-    from PIL import Image
-    import numpy as np
-    import io
 
     img = Image.fromarray(
         np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8)

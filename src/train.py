@@ -1,10 +1,9 @@
+import mlflow
+import mlflow.pytorch
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-import mlflow
-import mlflow.pytorch
-import numpy as np
 
 from dataset import get_datasets
 from model import build_model

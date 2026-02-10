@@ -1,6 +1,7 @@
 import os
-import zipfile
 import random
+import zipfile
+
 from PIL import Image
 from tqdm import tqdm
 
@@ -66,7 +67,7 @@ def prepare():
                 img = img.resize((IMG_SIZE, IMG_SIZE))
                 img.save(f"{OUTPUT_DIR}/{split}/{dst_cls}/{f}")
 
-    print("Preprocessing complete: data/processed ready")
+    print("Preprocessing complete: data/processed ready!!")
 
 if __name__ == "__main__":
     prepare()

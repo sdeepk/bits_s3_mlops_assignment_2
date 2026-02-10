@@ -1,6 +1,6 @@
-import mlflow
-import shutil
 import os
+
+import mlflow
 
 MODEL_NAME = "cats-dogs-resnet18"
 MODEL_URI = f"models:/{MODEL_NAME}/Production"

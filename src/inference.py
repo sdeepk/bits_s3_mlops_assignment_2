@@ -1,14 +1,14 @@
-import mlflow
-import mlflow.pytorch
-import torch
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from PIL import Image
 import io
 from contextlib import asynccontextmanager
 
-from src.schemas import PredictResponse
-from src.inference_utils import prepare_image
+import mlflow
+import mlflow.pytorch
+import torch
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from PIL import Image
 
+from src.inference_utils import prepare_image
+from src.schemas import PredictResponse
 
 MODEL_NAME = "cats-dogs-resnet18"
 STAGE = "Production"
