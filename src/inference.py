@@ -1,35 +1,57 @@
+import mlflow
+import mlflow.pytorch
 import torch
-import uvicorn
-from fastapi import FastAPI
-import numpy as np
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from PIL import Image
+import io
 
-from schemas import PredictRequest, PredictResponse
-from load_model import load_champion_model
+from src.schemas import PredictResponse
+from src.inference_utils import prepare_image
 
-app = FastAPI(title="MNIST CNN Inference Service")
 
-model = load_champion_model()
+MODEL_NAME = "cats-dogs-resnet18"
+STAGE = "Production"
+CLASS_NAMES = ["Cat", "Dog"]
+
+app = FastAPI(title="Cats vs Dogs Inference Service")
+
+# Load Champion model once at startup
+@app.on_event("startup")
+def load_model():
+    global model
+    model = mlflow.pytorch.load_model("models/champion")
+    model.eval()
+    print("Champion model loaded")
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
 @app.post("/predict", response_model=PredictResponse)
-def predict(request: PredictRequest):
-    # Convert input to tensor
-    x = np.array(request.pixels, dtype=np.float32)
-    x = x.reshape(1, 1, 28, 28)
-    x = torch.tensor(x)
+async def predict(file: UploadFile = File(...)):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Invalid image file")
+
+    image_bytes = await file.read()
+    image = Image.open(io.BytesIO(image_bytes))
+
+    x = prepare_image(image)
 
     with torch.no_grad():
         logits = model(x)
-        probs = torch.softmax(logits, dim=1).squeeze().tolist()
-        pred = int(torch.argmax(logits, dim=1).item())
+        probs = torch.softmax(logits, dim=1).squeeze()
+        pred_idx = int(torch.argmax(probs))
+        confidence = float(probs[pred_idx])
 
     return PredictResponse(
-        predicted_label=pred,
-        probabilities=probs
+        label=CLASS_NAMES[pred_idx],
+        probability=confidence
     )
-
 if __name__ == "__main__":
-    uvicorn.run("inference:app", host="0.0.0.0", port=8000)
+    import uvicorn
+    uvicorn.run(
+        "inference:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=False
+    )
