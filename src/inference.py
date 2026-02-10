@@ -1,36 +1,76 @@
+# ---- Imports ----
 import io
+import logging
+import time
 from contextlib import asynccontextmanager
 
-import mlflow
 import mlflow.pytorch
 import torch
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from PIL import Image
 
 from src.inference_utils import prepare_image
 from src.schemas import PredictResponse
 
-MODEL_NAME = "cats-dogs-resnet18"
-STAGE = "Production"
+# ---- Logging ----
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("cats-dogs-api")
+
 CLASS_NAMES = ["Cat", "Dog"]
 
+# ---- Metrics Globals ----
+request_count = 0
+total_latency = 0.0
 
+# ---- Lifespan ----
 @asynccontextmanager
-async def lifespan(app):
+async def lifespan(app: FastAPI):
     model = mlflow.pytorch.load_model("models/champion")
     model.eval()
     app.state.model = model
-    print("Champion model loaded")
+    logger.info("Champion model loaded")
     yield
 
+# ---- Create App ----
 app = FastAPI(
     title="Cats vs Dogs Inference Service",
     lifespan=lifespan
 )
 
+# ---- Middleware ----
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    global request_count, total_latency
+
+    start_time = time.time()
+    response = await call_next(request)
+    duration = time.time() - start_time
+
+    request_count += 1
+    total_latency += duration
+
+    logger.info(
+        f"{request.method} {request.url.path} "
+        f"Status: {response.status_code} "
+        f"Latency: {duration:.4f}s"
+    )
+
+    return response
+
+# ---- Routes ----
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/metrics")
+def metrics():
+    avg_latency = (
+        total_latency / request_count if request_count > 0 else 0
+    )
+    return {
+        "request_count": request_count,
+        "average_latency": avg_latency,
+    }
 
 @app.post("/predict", response_model=PredictResponse)
 async def predict(file: UploadFile = File(...)):
@@ -52,6 +92,7 @@ async def predict(file: UploadFile = File(...)):
         label=CLASS_NAMES[pred_idx],
         probability=confidence
     )
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
