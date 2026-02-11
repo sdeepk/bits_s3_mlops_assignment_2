@@ -7,7 +7,9 @@ from contextlib import asynccontextmanager
 import mlflow.pytorch
 import torch
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
+from fastapi.responses import Response
 from PIL import Image
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 
 from src.inference_utils import prepare_image
 from src.schemas import PredictResponse
@@ -18,9 +20,15 @@ logger = logging.getLogger("cats-dogs-api")
 
 CLASS_NAMES = ["Cat", "Dog"]
 
-# ---- Metrics Globals ----
-request_count = 0
-total_latency = 0.0
+REQUEST_COUNT = Counter(
+    "http_requests_total",
+    "Total number of HTTP requests"
+)
+
+REQUEST_LATENCY = Histogram(
+    "http_request_latency_seconds",
+    "HTTP request latency in seconds"
+)
 
 # ---- Lifespan ----
 @asynccontextmanager
@@ -40,14 +48,12 @@ app = FastAPI(
 # ---- Middleware ----
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
-    global request_count, total_latency
-
     start_time = time.time()
     response = await call_next(request)
     duration = time.time() - start_time
 
-    request_count += 1
-    total_latency += duration
+    REQUEST_COUNT.inc()
+    REQUEST_LATENCY.observe(duration)
 
     logger.info(
         f"{request.method} {request.url.path} "
@@ -57,6 +63,7 @@ async def log_requests(request: Request, call_next):
 
     return response
 
+
 # ---- Routes ----
 @app.get("/health")
 def health():
@@ -64,13 +71,8 @@ def health():
 
 @app.get("/metrics")
 def metrics():
-    avg_latency = (
-        total_latency / request_count if request_count > 0 else 0
-    )
-    return {
-        "request_count": request_count,
-        "average_latency": avg_latency,
-    }
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
 
 @app.post("/predict", response_model=PredictResponse)
 async def predict(file: UploadFile = File(...)):
