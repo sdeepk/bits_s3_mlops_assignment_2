@@ -1,6 +1,6 @@
-# 🐶🐱 Cats vs Dogs – End-to-End MLOps Pipeline
+# 🐶 Cats vs Dogs – End-to-End MLOps Pipeline 🐱
 
-## 📌 Project Overview
+## Project Overview
 
 This project implements a full end-to-end MLOps pipeline for binary image classification (Cats vs Dogs), covering:
 
@@ -17,7 +17,7 @@ The system is fully containerized and deployed on a local Kubernetes cluster.
 
 ---
 
-## 🏗 Architecture
+## Flow Chart
 
 ```mermaid
 flowchart LR
@@ -32,13 +32,13 @@ flowchart LR
 ```
 ---
 
-## 🏗 System Architecture
+## System Architecture
 
 ![Architecture Diagram](docs/architecture.png)
 
 ---
 
-## 🧠 Model Development (M1)
+## Model Development (M1)
 
 * Dataset: Kaggle Cats vs Dogs
 * Preprocessing:
@@ -65,7 +65,7 @@ Artifacts tracked:
 
 ---
 
-## 📦 Model Packaging (M2)
+## Model Packaging (M2)
 
 * FastAPI inference service
 * Endpoints:
@@ -78,7 +78,7 @@ Artifacts tracked:
 
 ---
 
-## 🔁 Continuous Integration (M3)
+## Continuous Integration (M3)
 
 GitHub Actions pipeline runs on every PR:
 
@@ -89,7 +89,7 @@ GitHub Actions pipeline runs on every PR:
 
 ---
 
-## 🚀 Deployment (M4)
+## Deployment (M4)
 
 Deployment target: Kubernetes (Docker Desktop)
 
@@ -102,7 +102,7 @@ Resources:
 
 ---
 
-## 📊 Monitoring & Observability (M5)
+## Monitoring & Observability (M5)
 
 * Prometheus scraping `/metrics`
 * Grafana dashboard:
@@ -114,7 +114,7 @@ Resources:
 
 ---
 
-## 🌐 User Interface
+## User Interface
 
 Streamlit-based UI allows:
 
@@ -125,7 +125,7 @@ Streamlit-based UI allows:
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 * PyTorch
 * MLflow
@@ -139,7 +139,7 @@ Streamlit-based UI allows:
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 bits_s3_mlops_assignment_2/
@@ -160,19 +160,14 @@ bits_s3_mlops_assignment_2/
 
 ---
 
-# 🔧 Setup & Execution Guide
 
-Add this section to your README:
-
----
-
-# ⚙️ Setup & Execution Guide
+# Setup & Execution Guide
 
 This guide walks through the full pipeline from training to deployment.
 
 ---
 
-## 🖥 Prerequisites
+## Prerequisites
 
 Make sure the following are installed:
 
@@ -189,7 +184,7 @@ Settings → Kubernetes → Enable Kubernetes
 
 ---
 
-# 🔵 1️⃣ Clone Repository
+## 1. Clone Repository
 
 ```powershell
 git clone <your-repo-url>
@@ -198,7 +193,7 @@ cd bits_s3_mlops_assignment_2
 
 ---
 
-# 🔵 2️⃣ Create Virtual Environment
+## 2. Create Virtual Environment
 
 ```powershell
 python -m venv .venv
@@ -213,7 +208,7 @@ pip install -r requirements.txt
 
 ---
 
-# 🔵 3️⃣ Model Training (M1)
+## 3. Model Training
 
 Train the model:
 
@@ -242,7 +237,7 @@ http://localhost:5000
 
 ---
 
-# 🔵 4️⃣ Export Champion Model
+## 4. Export Champion Model
 
 Promote best model (if not already):
 
@@ -264,7 +259,7 @@ models/champion/
 
 ---
 
-# 🔵 5️⃣ Run Inference Locally (Without Docker)
+## 5. Run Inference Locally (Without Docker)
 
 ```powershell
 uvicorn src.inference:app --reload
@@ -283,7 +278,7 @@ Test:
 
 ---
 
-# 🔵 6️⃣ Build Docker Image (M2)
+## 6. Build Docker Image 
 
 ```powershell
 docker build -t cats-dogs-inference .
@@ -303,7 +298,7 @@ http://localhost:8000/health
 
 ---
 
-# 🔵 7️⃣ Deploy to Kubernetes (M4)
+## 7. Deploy to Kubernetes
 
 Ensure Docker Desktop Kubernetes is running.
 
@@ -334,7 +329,7 @@ http://localhost:9000/health
 
 ---
 
-# 🔵 8️⃣ Run Streamlit UI
+## 8. Run Streamlit UI
 
 In a new terminal:
 
@@ -350,7 +345,7 @@ http://localhost:8501
 
 ---
 
-# 🔵 9️⃣ Deploy Prometheus & Grafana (M5)
+## 9. Deploy Prometheus & Grafana
 
 Apply monitoring stack:
 
@@ -381,7 +376,7 @@ http://localhost:30030
 
 ---
 
-# 🔵 🔟 Run Tests (M3)
+## 10. Run Tests
 
 ```powershell
 pytest -v
@@ -395,7 +390,7 @@ ruff check .
 
 ---
 
-# 🔵 CI Pipeline (Automatic)
+## CI Pipeline (Automatic)
 
 On every Pull Request:
 
@@ -408,7 +403,7 @@ GitHub Actions handles this automatically.
 
 ---
 
-# 🏁 Quick Start Summary
+## Quick Start Summary
 
 If you just want to run everything quickly:
 
